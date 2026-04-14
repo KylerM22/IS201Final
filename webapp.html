@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Soccer</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: darkgreen;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    /* HEADER */
+    h1 {
+      font-size: 48px;
+      margin: 20px 0;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* GAME WRAPPER */
+    .game-wrapper {
+      position: relative;
+      width: 400px;
+      height: 600px;
+      margin: 0 auto;
+    }
+
+    canvas {
+      background: #3a4546;
+      display: block;
+    }
+
+    /* SCORE */
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 24px;
+      color: white;
+      font-weight: bold;
+    }
+
+    /* START SCREEN */
+    #startScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      z-index: 3;
+      flex-direction: column;
+    }
+
+    #startScreen button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Flappy Soccer</h1>
+
+<div class="game-wrapper">
+  <div id="score">Score: 0</div>
+
+  <canvas id="game" width="400" height="600"></canvas>
+
+  <div id="startScreen">
+    <div>Click to Start</div>
+    <button>START</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let gravity = 0.5;
+let velocity = 0;
+let playerY = 300;
+let playerX = 80;
+
+let score = 0;
+let pipes = [];
+let coins = [];
+let frames = 0;
+
+let gameStarted = false;
+
+document.querySelector("#startScreen button").addEventListener("click", () => {
+  gameStarted = true;
+  document.getElementById("startScreen").style.display = "none";
+  loop();
+});
+
+document.addEventListener("keydown", () => {
+  if (gameStarted) velocity = -8;
+});
+
+const coinImg = new Image();
+coinImg.src = "https://thumbs.dreamstime.com/b/football-icon-flat-style-vector-soccer-ball-transparent-background-sport-object-you-design-projects-140588179.jpg";
+
+const playerImg = new Image();
+playerImg.src = "https://i.pinimg.com/736x/69/f2/a1/69f2a1780bb7920ebb2848ae23da924a.jpg";
+
+
+function drawPlayer() {
+  ctx.drawImage(playerImg, playerX - 20, playerY - 20, 40, 40);
+}
+
+function drawPipes() {
+  ctx.fillStyle = "green";
+  pipes.forEach(p => {
+    ctx.fillRect(p.x, 0, 50, p.top);
+    ctx.fillRect(p.x, p.bottom, 50, canvas.height);
+  });
+}
+
+function drawCoins() {
+  coins.forEach(c => {
+    ctx.drawImage(coinImg, c.x - 12, c.y - 12, 24, 24);
+  });
+}
+
+
+
+function update() {
+  velocity += gravity;
+  playerY += velocity;
+
+  pipes.forEach(p => p.x -= 2);
+  coins.forEach(c => c.x -= 2);
+
+  if (frames % 90 === 0) {
+    let gap = 150;
+    let top = Math.random() * 300 + 50;
+
+    pipes.push({ x: 400, top: top, bottom: top + gap });
+    coins.push({ x: 420, y: top + gap / 2 });
+  }
+
+  pipes.forEach(p => {
+    if (
+      playerX + 15 > p.x &&
+      playerX - 15 < p.x + 50 &&
+      (playerY - 15 < p.top || playerY + 15 > p.bottom)
+    ) {
+      resetGame();
+    }
+  });
+
+  coins.forEach((c, i) => {
+    let dist = Math.hypot(playerX - c.x, playerY - c.y);
+    if (dist < 20) {
+      score++;
+      document.getElementById("score").innerText = "Score: " + score;
+      coins.splice(i, 1);
+    }
+  });
+
+  if (playerY > canvas.height || playerY < 0) {
+    resetGame();
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawPlayer();
+  drawPipes();
+  drawCoins();
+}
+
+function resetGame() {
+  alert("Game Over! Score: " + score);
+  document.location.reload();
+}
+
+function loop() {
+  if (!gameStarted) return;
+
+  frames++;
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+function goBack() {
+  window.location.href = "aboutme.html";
+}
+</script>
+    
+<button id="backBtn" onclick="goBack()">Back to About Me</button>
+
+</body>
+</html>

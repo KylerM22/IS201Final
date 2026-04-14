@@ -1,0 +1,18 @@
+body {
+  text-align: left;
+  background-color: rgb(205, 205, 205);
+}
+
+h1 {
+  color: black;
+}
+
+.nav-links a {
+  color: darkgreen;
+  text-decoration: none;
+  margin: 0 15px;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
